@@ -4,14 +4,18 @@ import { pipeline } from 'stream';
 import csv from 'csvtojson';
 
 pipeline(
-  createReadStream(path.join('src', 'csv', 'csv.csv')),
+  createReadStream(path.join('src', 'task1', 'csv', 'csv.csv')),
   csv({
     noheader: false,
     headers: ['book', 'author', 'amount', 'price'],
   }),
-  createWriteStream(path.join('src', 'csv', 'csv.txt')),
+  createWriteStream(path.join('src', 'task1', 'csv', 'csv.txt')),
   (error) => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    error ? console.log(error) : console.log('complete');
+    if (error) {
+      console.log(error);
+    } else {
+      console.log('complete');
+      process.exit(0);
+    }
   },
 );
