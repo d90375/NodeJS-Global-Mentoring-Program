@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
+import { fillRed } from './chulk';
 
 export class ErrorHandler extends Error {
   public statusCode;
@@ -29,4 +30,16 @@ export const catchErrors =
 export const handleInternalError = (_req: Request, res: Response) => {
   const status = StatusCodes.INTERNAL_SERVER_ERROR;
   res.status(status).send(getReasonPhrase(status));
+};
+
+export const errorHandler = (
+  _req: Request,
+  _res: Response,
+  next: NextFunction,
+  statusCode: number,
+  message: string,
+) => {
+  console.log(fillRed(message));
+  const err = new ErrorHandler(statusCode, message, {});
+  return next(err);
 };

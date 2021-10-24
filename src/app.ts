@@ -1,7 +1,8 @@
-import express from 'express';
+import express, { Request, Response, NextFunction } from 'express';
 import swaggerUI from 'swagger-ui-express';
 import path from 'path';
 import YAML from 'yamljs';
+import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 import userRouter from './resources/user/user.router';
 
 const app = express();
@@ -21,5 +22,22 @@ app.use('/', (req, res, next) => {
 });
 
 app.use('/users', userRouter);
+
+app.use(
+  (
+    err: { statusCode: number; message: string },
+    _req: Request,
+    res: Response,
+    _next: NextFunction,
+  ) => {
+    if (!err.statusCode) {
+      res
+        .status(StatusCodes.INTERNAL_SERVER_ERROR)
+        .send(getReasonPhrase(StatusCodes.INTERNAL_SERVER_ERROR));
+    }
+    console.log(err);
+    res.status(err.statusCode).send(err.message || getReasonPhrase(err.statusCode));
+  },
+);
 
 export default app;

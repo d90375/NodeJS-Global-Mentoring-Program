@@ -3,6 +3,25 @@ import { User } from '../../types';
 
 const getAll = () => users;
 
+const getAutoSuggestUsers = (loginSubstring: string, limit: number) => {
+  const fixedLoginSubstring = loginSubstring?.toLowerCase()?.trim();
+  // eslint-disable-next-line @typescript-eslint/dot-notation
+  let sortedUsers = users.sort((a, b) => a['login'].localeCompare(b['login']));
+
+  if (loginSubstring) {
+    sortedUsers = sortedUsers.filter((user) =>
+      // eslint-disable-next-line @typescript-eslint/dot-notation
+      user['login'].toLowerCase().includes(fixedLoginSubstring),
+    );
+  }
+
+  if (limit) {
+    sortedUsers.slice(0, limit);
+  }
+
+  return sortedUsers;
+};
+
 const create = (user: User) => {
   users.push(user);
   return user;
@@ -28,6 +47,8 @@ const getById = (id: string): void | User => {
   }
 };
 
+const getByLogin = (login: string) => users.find((el) => el.login === login);
+
 // eslint-disable-next-line consistent-return
 const remove = (id: string): void | User => {
   // soft delete implementation
@@ -51,6 +72,8 @@ const userRepository = {
   update,
   getById,
   remove,
+  getAutoSuggestUsers,
+  getByLogin,
 };
 
 export default userRepository;
