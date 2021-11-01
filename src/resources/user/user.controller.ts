@@ -44,18 +44,18 @@ const updateAction = async (req: Request, res: Response, next: NextFunction) => 
     const userData = req.body;
 
     if (id) {
-      // const currUser = await userService.getById(id);
-      // if (!currUser) {
-      //   errorHandler(req, res, next, StatusCodes.NOT_FOUND, 'Login not found.');
-      // }
+      const currUser = await userService.getById(id);
+      if (!currUser) {
+        errorHandler(req, res, next, StatusCodes.NOT_FOUND, 'Login not found.');
+      }
 
-      // const isLoginAvailable = await userService.getByLogin(userData?.login);
-      // if (isLoginAvailable) {
-      //   errorHandler(req, res, next, StatusCodes.NOT_ACCEPTABLE, 'Login has found.');
-      // } else {
-      const user = await userService.update(id, userData);
-      return res.status(StatusCodes.OK).json(user);
-      // }
+      const isLoginAvailable = await userService.getByLogin(userData?.login);
+      if (isLoginAvailable) {
+        errorHandler(req, res, next, StatusCodes.NOT_ACCEPTABLE, 'Login has found.');
+      } else {
+        const user = await userService.update(id, userData);
+        return res.status(StatusCodes.OK).json(user);
+      }
     }
 
     errorHandler(req, res, next, StatusCodes.BAD_GATEWAY, getReasonPhrase(StatusCodes.BAD_GATEWAY));
