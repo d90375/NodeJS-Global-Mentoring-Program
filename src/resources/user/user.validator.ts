@@ -2,7 +2,7 @@ import { body } from 'express-validator';
 
 const validate = {
   userRequestValidation: [
-    body(['id', 'login']).not().isEmpty().trim().escape(),
+    body('login').not().isEmpty().trim().escape(),
     body('password')
       .isLength({ min: 1 })
       .trim()

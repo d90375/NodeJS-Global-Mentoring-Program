@@ -1,10 +1,8 @@
-import { User } from '../../types';
+import { User } from './user.types';
 import userRepository from './user.memory.repository';
 
 const getAll = (loginSubstring: string, limit: number) =>
-  loginSubstring?.length > 0 || limit > 0
-    ? userRepository.getAutoSuggestUsers(loginSubstring, limit)
-    : userRepository.getAll();
+  userRepository.getAutoSuggestUsers(loginSubstring, limit);
 
 const create = (userData: User) => userRepository.create(userData);
 

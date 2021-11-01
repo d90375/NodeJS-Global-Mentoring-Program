@@ -1,73 +1,54 @@
-import { users } from '../../mock/users';
-import { User } from '../../types';
+import { Op } from 'sequelize';
+import { User } from './user.types';
+import UserModel from './user.model';
 
-const getAll = () => users;
+const updatedFields = (obj: any) =>
+  Object.keys(obj).filter((field) => !['password'].includes(field));
 
-const getAutoSuggestUsers = (loginSubstring: string, limit: number) => {
-  const fixedLoginSubstring = loginSubstring?.toLowerCase()?.trim();
-  // eslint-disable-next-line @typescript-eslint/dot-notation
-  let sortedUsers = users.sort((a, b) => a['login'].localeCompare(b['login']));
+const getAutoSuggestUsers = async (loginSubstring: string, limit: number): Promise<User[]> => {
+  let whereOption;
 
   if (loginSubstring) {
-    sortedUsers = sortedUsers.filter((user) =>
-      // eslint-disable-next-line @typescript-eslint/dot-notation
-      user['login'].toLowerCase().includes(fixedLoginSubstring),
-    );
+    whereOption = {
+      login: { [Op.iLike]: `${loginSubstring}%` },
+    };
   }
-
-  if (limit) {
-    sortedUsers.slice(0, limit);
-  }
+  const sortedUsers = await UserModel.findAll({
+    order: ['login'],
+    where: whereOption,
+    limit,
+  });
 
   return sortedUsers;
 };
 
-const create = (user: User) => {
-  users.push(user);
-  return user;
+const create = async (user: User) => UserModel.create(user);
+
+const update = async (id: string, user: User): Promise<User | null> => {
+  const updatedUser = await UserModel.update(user, {
+    where: { id },
+    returning: true,
+    fields: updatedFields(UserModel.rawAttributes),
+  }).then(() => UserModel.findOne({ where: { id } }));
+
+  return updatedUser;
 };
 
-// eslint-disable-next-line consistent-return
-const update = (id: string, user: User): void | User => {
-  const indexById = users.findIndex((el) => el.id === id);
+const getById = async (id: string): Promise<User | null> =>
+  UserModel.findOne({
+    where: {
+      id,
+    },
+  });
 
-  if (indexById !== -1) {
-    const updatedUser = { ...users[indexById], ...user };
-    users[indexById] = updatedUser;
-    return updatedUser;
-  }
-};
+const getByLogin = async (login: string): Promise<User | null> =>
+  UserModel.findOne({ where: { login } });
 
-// eslint-disable-next-line consistent-return
-const getById = (id: string): void | User => {
-  const user = users.find((el) => el.id === id);
-
-  if (user) {
-    return user;
-  }
-};
-
-const getByLogin = (login: string) => users.find((el) => el.login === login);
-
-// eslint-disable-next-line consistent-return
-const remove = (id: string): void | User => {
-  // soft delete implementation
-  const user = users.find((el) => el.id === id);
-
-  if (user) {
-    return { ...user, isDeleted: true };
-  }
-
-  //   const indexById = users.findIndex((el) => el.id === id);
-  //   const isDeleted = indexById !== -1;
-  //   if (isDeleted) {
-  //     users.splice(indexById, 1);
-  //   }
-  //   return isDeleted;
+const remove = async (id: string): Promise<void> => {
+  UserModel.destroy({ where: { id } });
 };
 
 const userRepository = {
-  getAll,
   create,
   update,
   getById,
