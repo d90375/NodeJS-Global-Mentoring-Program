@@ -16,7 +16,7 @@ const getAutoSuggestUsers = (loginSubstring: string, limit: number) => {
   }
 
   if (limit) {
-    sortedUsers.slice(0, limit);
+    return sortedUsers.slice(0, limit);
   }
 
   return sortedUsers;
@@ -50,12 +50,12 @@ const getById = (id: string): void | User => {
 const getByLogin = (login: string) => users.find((el) => el.login === login);
 
 // eslint-disable-next-line consistent-return
-const remove = (id: string): void | User => {
+const remove = (id: string): void => {
   // soft delete implementation
-  const user = users.find((el) => el.id === id);
-
-  if (user) {
-    return { ...user, isDeleted: true };
+  const indexById = users.findIndex((el) => el.id === id);
+  console.log('indexById', users[0]);
+  if (indexById) {
+    users[indexById].isDeleted = true;
   }
 
   //   const indexById = users.findIndex((el) => el.id === id);
