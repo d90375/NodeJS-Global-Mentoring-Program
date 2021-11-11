@@ -1,12 +1,13 @@
-import { Model } from 'sequelize';
+import { Optional } from 'sequelize';
 
-export type UserInstance = User & Model;
-
-export type User = {
-  id: number;
-  uuid: string;
+export interface UserAttributes {
+  id: string;
   login: string;
   password?: string;
   age: number;
   isDeleted: boolean;
-};
+  createdAt?: Date;
+  updatedAt?: Date;
+}
+export interface UserInput extends Optional<UserAttributes, 'createdAt' | 'updatedAt'> {}
+export interface UserOutput extends Required<UserAttributes> {}

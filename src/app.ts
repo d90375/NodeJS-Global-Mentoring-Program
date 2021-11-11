@@ -5,7 +5,8 @@ import YAML from 'yamljs';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 
 import userRouter from './resources/user/user.router';
-import db from './resources/base/base.model';
+import groupRouter from './resources/group/group.router';
+import { db } from './resources/base/base.model';
 import { fillGreenSoft, fillRed } from './common/chulk';
 
 const app = express();
@@ -21,7 +22,7 @@ db.authenticate()
   });
 
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: false }));
 
 app.use('/doc', swaggerUI.serve, swaggerUI.setup(swaggerDocument));
 
@@ -34,6 +35,7 @@ app.use('/', (req, res, next) => {
 });
 
 app.use('/users', userRouter);
+app.use('/groups', groupRouter);
 
 app.use(
   (

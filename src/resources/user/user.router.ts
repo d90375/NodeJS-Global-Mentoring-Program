@@ -30,7 +30,7 @@ router.get('/:id', userController.getByIdAction);
  *
  * @apiSuccess (200) {Object<User>}
  */
-router.put('/:id', validate.userRequestValidation, userController.updateAction);
+router.put('/:id', validate.userUpdateRequestValidation, userController.updateAction);
 
 /**
  * @api {delete} /users/:id Delete specific user by Id
@@ -51,6 +51,6 @@ router.delete('/:id', userController.deleteAction);
  *
  * @apiSuccess (200) {Object<User>}
  */
-router.post('/', validate.userRequestValidation, userController.createAction);
+router.post('/', validate.userCreateRequestValidation, userController.createAction);
 
 export default router;

@@ -1,18 +1,27 @@
 import { body } from 'express-validator';
 
 const validate = {
-  userRequestValidation: [
-    body('login').not().isEmpty().trim().escape(),
+  userUpdateRequestValidation: [
+    body('login').trim().isString(),
     body('password')
-      .isLength({ min: 1 })
       .trim()
-      .escape()
+      .optional()
       .matches(/(?:\d+[a-z]|[a-z]+\d)[a-z\d]*/),
     body('age')
-      .not()
-      .isEmpty()
       .trim()
-      .escape()
+      .optional()
+      .matches(/^([4-9]|[1-9][0-9]|1[01][0-9]|12[0-9]|130)$/),
+  ],
+  userCreateRequestValidation: [
+    body('login').notEmpty().trim().isString(),
+    body('password')
+      .notEmpty()
+      .isLength({ min: 1 })
+      .trim()
+      .matches(/(?:\d+[a-z]|[a-z]+\d)[a-z\d]*/),
+    body('age')
+      .notEmpty()
+      .trim()
       .matches(/^([4-9]|[1-9][0-9]|1[01][0-9]|12[0-9]|130)$/),
   ],
 };

@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 import { errorHandler } from '../../common/error-handlers';
 import userService from './user.service';
+import { UserInput } from './user.types';
 
 const { validate } = require('../../middleware/request.validator');
 
@@ -19,7 +20,7 @@ const indexAction = async (
   }
 };
 
-const createAction = async (req: Request, res: Response, next: NextFunction) => {
+const createAction = async (req: Request<{}, {}, UserInput>, res: Response, next: NextFunction) => {
   try {
     await validate(req);
     const userData = req.body;
@@ -37,7 +38,11 @@ const createAction = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const updateAction = async (req: Request, res: Response, next: NextFunction) => {
+const updateAction = async (
+  req: Request<{ id: string }, {}, UserInput>,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
     await validate(req);
     const { id } = req.params;
@@ -49,13 +54,8 @@ const updateAction = async (req: Request, res: Response, next: NextFunction) => 
         errorHandler(req, res, next, StatusCodes.NOT_FOUND, 'Login not found.');
       }
 
-      const isLoginAvailable = await userService.getByLogin(userData?.login);
-      if (isLoginAvailable) {
-        errorHandler(req, res, next, StatusCodes.NOT_ACCEPTABLE, 'Login has found.');
-      } else {
-        const user = await userService.update(id, userData);
-        return res.status(StatusCodes.OK).json(user);
-      }
+      const user = await userService.update(id, userData);
+      return res.status(StatusCodes.OK).json(user);
     }
 
     errorHandler(req, res, next, StatusCodes.BAD_GATEWAY, getReasonPhrase(StatusCodes.BAD_GATEWAY));
@@ -65,14 +65,14 @@ const updateAction = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const deleteAction = async (req: Request, res: Response, next: NextFunction) => {
+const deleteAction = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     if (id) {
       const currUser = await userService.getById(id);
       if (currUser) {
         await userService.remove(id);
-        return res.status(StatusCodes.NO_CONTENT);
+        return res.status(StatusCodes.OK).send('User has been deleted');
       }
       errorHandler(req, res, next, StatusCodes.NOT_FOUND, 'Login not found.');
     }
@@ -83,7 +83,7 @@ const deleteAction = async (req: Request, res: Response, next: NextFunction) => 
   }
 };
 
-const getByIdAction = async (req: Request, res: Response, next: NextFunction) => {
+const getByIdAction = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     const user = await userService.getById(id);
