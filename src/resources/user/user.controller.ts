@@ -72,7 +72,7 @@ const deleteAction = async (req: Request, res: Response, next: NextFunction) => 
       const currUser = await userService.getById(id);
       if (currUser) {
         await userService.remove(id);
-        return res.status(StatusCodes.NO_CONTENT);
+        return res.status(StatusCodes.NO_CONTENT).send('Login has been deleted.');
       }
       errorHandler(req, res, next, StatusCodes.NOT_FOUND, 'Login not found.');
     }
