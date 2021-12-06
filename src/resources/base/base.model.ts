@@ -1,5 +1,7 @@
 import { Sequelize } from 'sequelize';
 import CONFIG from '../../common/config';
+import logger from '../../common/logger.config';
+
 import createGroupModel from '../group/group.model';
 import createUserModel from '../user/user.model';
 
@@ -16,6 +18,7 @@ export const db = new Sequelize({
       rejectUnauthorized: false, // This line will fix new error
     },
   },
+  logging: (msg) => logger.debug(msg),
 });
 
 const Models = {
