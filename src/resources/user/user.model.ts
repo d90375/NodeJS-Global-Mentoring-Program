@@ -49,6 +49,9 @@ const createUserModel = (sequelize: Sequelize) =>
       defaultScope: {
         attributes: { exclude: ['password'] },
       },
+      scopes: {
+        withPassword: { attributes: undefined },
+      },
       sequelize,
       tableName: 'Users',
     },

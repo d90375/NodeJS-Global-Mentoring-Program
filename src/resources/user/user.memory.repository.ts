@@ -53,7 +53,7 @@ const update = async (id: string, user: UserInput): Promise<UserOutput | null | 
   return currentUser?.update(user);
 };
 
-const getById = async (id: string): Promise<UserOutput | null | void> =>
+const getById = async (id: string): Promise<UserOutput | null> =>
   Models.UserModel.findByPk(id, {
     attributes: {
       exclude: ['createdAt', 'updatedAt'],
@@ -71,6 +71,9 @@ const getById = async (id: string): Promise<UserOutput | null | void> =>
 const getByLogin = async (login: string): Promise<UserOutput | null> =>
   Models.UserModel.findOne({ where: { login } });
 
+const getByLoginWithPassword = async (login: string): Promise<UserOutput | null> =>
+  Models.UserModel.scope('withPassword').findOne({ where: { login } });
+
 const remove = async (id: string): Promise<void> => {
   Models.UserModel.destroy({ where: { id } });
 };
@@ -81,6 +84,7 @@ const userRepository = {
   getById,
   remove,
   getAutoSuggestUsers,
+  getByLoginWithPassword,
   getByLogin,
 };
 
