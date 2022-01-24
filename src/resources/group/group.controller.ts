@@ -114,11 +114,13 @@ const addUsersToGroupAction = async (
     const { id } = req.params;
     const { userIds } = req.body;
 
-    const currentUsers = await Promise.all(
+    const currentUsers: any = await Promise.all(
       userIds?.map(async (userId) => userService.getById(userId)),
-    ).catch(() => {});
+    )
+      .then((data) => data)
+      .catch(() => {});
 
-    if (!currentUsers) {
+    if (!currentUsers || !currentUsers.every((userId: string) => userId)) {
       errorHandler(req, res, next, StatusCodes.NOT_FOUND, 'One of the users was not found ');
     }
 
