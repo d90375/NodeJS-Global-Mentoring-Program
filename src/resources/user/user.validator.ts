@@ -1,7 +1,8 @@
-import { body } from 'express-validator';
+import { body, param } from 'express-validator';
 
 const validate = {
   userUpdateRequestValidation: [
+    param('id').exists().isUUID(),
     body('login').isString().withMessage('Must to be a string').trim(),
     body('password')
       .trim()
@@ -28,6 +29,8 @@ const validate = {
       .matches(/^([4-9]|[1-9][0-9]|1[01][0-9]|12[0-9]|130)$/)
       .withMessage('Must contain a numbers 4 to 130'),
   ],
+  userGetByIdRequestValidation: [param('id').exists().isUUID()],
+  userDeleteByIdRequestValidation: [param('id').exists().isUUID()],
 };
 
 export default validate;

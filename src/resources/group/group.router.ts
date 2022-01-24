@@ -18,7 +18,7 @@ router.get('/', groupController.indexAction);
  *
  * @apiSuccess (200) {Object<Group>}
  */
-router.get('/:id', groupController.getByIdAction);
+router.get('/:id', validate.groupGetByIdRequestValidation, groupController.getByIdAction);
 
 /**
  * @api {put} /groups/:id Update specific group by Id
@@ -37,7 +37,7 @@ router.put('/:id', validate.groupUpdateRequestValidation, groupController.update
  *
  * @apiSuccess (200) {Object<Group>}
  */
-router.delete('/:id', groupController.deleteAction);
+router.delete('/:id', validate.groupDeleteRequestValidation, groupController.deleteAction);
 
 /**
  * @api {post} /groups Create group

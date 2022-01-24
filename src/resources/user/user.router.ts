@@ -19,7 +19,12 @@ router.get('/', authMiddleware, userController.indexAction);
  *
  * @apiSuccess (200) {Object<User>}
  */
-router.get('/:id', authMiddleware, userController.getByIdAction);
+router.get(
+  '/:id',
+  authMiddleware,
+  validate.userGetByIdRequestValidation,
+  userController.getByIdAction,
+);
 
 /**
  * @api {put} /users/:id Update specific user by Id
@@ -45,7 +50,12 @@ router.put(
  *
  * @apiSuccess (200) {Object<User>}
  */
-router.delete('/:id', authMiddleware, userController.deleteAction);
+router.delete(
+  '/:id',
+  authMiddleware,
+  validate.userDeleteByIdRequestValidation,
+  userController.deleteAction,
+);
 
 /**
  * @api {post} /users Create user

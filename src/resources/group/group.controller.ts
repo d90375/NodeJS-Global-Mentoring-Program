@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { HTTP400Error, HTTP404Error } from '../../common/errors';
 import { validateMiddleware } from '../../middleware';
+import userService from './group.service';
 import groupService from './group.service';
 import { GroupInput } from './group.types';
 
@@ -107,6 +108,16 @@ const addUsersToGroupAction = async (
     await validateMiddleware(req, res, next);
     const { id } = req.params;
     const { userIds } = req.body;
+
+    const currentUsers: any = await Promise.all(
+      userIds?.map(async (userId) => userService.getById(userId)),
+    )
+      .then((data) => data)
+      .catch(() => {});
+
+    if (!currentUsers || !currentUsers.every((userId: string) => userId)) {
+      throw new HTTP404Error('One of the users was not found ');
+    }
 
     const group = await groupService.addUsersToGroup(id, userIds);
 
