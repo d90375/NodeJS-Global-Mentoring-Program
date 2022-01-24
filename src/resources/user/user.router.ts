@@ -18,7 +18,7 @@ router.get('/', userController.indexAction);
  *
  * @apiSuccess (200) {Object<User>}
  */
-router.get('/:id', userController.getByIdAction);
+router.get('/:id', validate.userGetByIdRequestValidation, userController.getByIdAction);
 
 /**
  * @api {put} /users/:id Update specific user by Id
@@ -39,7 +39,7 @@ router.put('/:id', validate.userUpdateRequestValidation, userController.updateAc
  *
  * @apiSuccess (200) {Object<User>}
  */
-router.delete('/:id', userController.deleteAction);
+router.delete('/:id', validate.userDeleteByIdRequestValidation, userController.deleteAction);
 
 /**
  * @api {post} /users Create user

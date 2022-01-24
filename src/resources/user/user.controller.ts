@@ -67,6 +67,7 @@ const updateAction = async (
 
 const deleteAction = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
+    await validate(req);
     const { id } = req.params;
     if (id) {
       const currUser = await userService.getById(id);
@@ -85,6 +86,7 @@ const deleteAction = async (req: Request<{ id: string }>, res: Response, next: N
 
 const getByIdAction = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
+    await validate(req);
     const { id } = req.params;
     const user = await userService.getById(id);
     return res.status(StatusCodes.OK).json(user);

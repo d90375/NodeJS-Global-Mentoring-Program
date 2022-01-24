@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { StatusCodes, getReasonPhrase } from 'http-status-codes';
 import { errorHandler } from '../../common/error-handlers';
+import userService from '../user/user.service';
 import groupService from './group.service';
 import { GroupInput } from './group.types';
 
@@ -70,6 +71,7 @@ const updateAction = async (
 
 const deleteAction = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
+    await validate(req);
     const { id } = req.params;
     if (id) {
       const currGroup = await groupService.getById(id);
@@ -88,6 +90,7 @@ const deleteAction = async (req: Request<{ id: string }>, res: Response, next: N
 
 const getByIdAction = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
+    await validate(req);
     const { id } = req.params;
     const group = await groupService.getById(id);
 
@@ -107,8 +110,17 @@ const addUsersToGroupAction = async (
   next: NextFunction,
 ) => {
   try {
+    await validate(req);
     const { id } = req.params;
     const { userIds } = req.body;
+
+    const currentUsers = await Promise.all(
+      userIds?.map(async (userId) => userService.getById(userId)),
+    ).catch(() => {});
+
+    if (!currentUsers) {
+      errorHandler(req, res, next, StatusCodes.NOT_FOUND, 'One of the users was not found ');
+    }
 
     const group = await groupService.addUsersToGroup(id, userIds);
 
