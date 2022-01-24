@@ -5,7 +5,7 @@ dotenv.config({
   path: path.join(__dirname, '../../.env'),
 });
 
-export default {
+export const CONFIG = {
   PORT: process.env.PORT,
   NODE_ENV: process.env.NODE_ENV,
   DATABASE_URL: process.env.DATABASE_URL,
@@ -14,4 +14,5 @@ export default {
   DATABASE_USERNAME: process.env.DATABASE_USERNAME,
   DATABASE_NAME: process.env.DATABASE_NAME,
   DATABASE_PORT: process.env.DATABASE_PORT,
+  JWT_TOKEN_SECRET: process.env.JWT_TOKEN_SECRET || '123',
 };

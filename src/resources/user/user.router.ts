@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { authMiddleware } from '../../middleware';
 import userController from './user.controller';
 import validate from './user.validator';
 
@@ -9,7 +10,7 @@ from api {get} /users Get all users
  *
  * @apiSuccess (200) {Array<User>}
  */
-router.get('/', userController.indexAction);
+router.get('/', authMiddleware, userController.indexAction);
 
 /**
  * @api {get} /users/:id Get specific user by Id
@@ -18,7 +19,12 @@ router.get('/', userController.indexAction);
  *
  * @apiSuccess (200) {Object<User>}
  */
-router.get('/:id', userController.getByIdAction);
+router.get(
+  '/:id',
+  authMiddleware,
+  validate.userGetByIdRequestValidation,
+  userController.getByIdAction,
+);
 
 /**
  * @api {put} /users/:id Update specific user by Id
@@ -30,7 +36,12 @@ router.get('/:id', userController.getByIdAction);
  *
  * @apiSuccess (200) {Object<User>}
  */
-router.put('/:id', validate.userRequestValidation, userController.updateAction);
+router.put(
+  '/:id',
+  authMiddleware,
+  validate.userUpdateRequestValidation,
+  userController.updateAction,
+);
 
 /**
  * @api {delete} /users/:id Delete specific user by Id
@@ -39,7 +50,12 @@ router.put('/:id', validate.userRequestValidation, userController.updateAction);
  *
  * @apiSuccess (200) {Object<User>}
  */
-router.delete('/:id', userController.deleteAction);
+router.delete(
+  '/:id',
+  authMiddleware,
+  validate.userDeleteByIdRequestValidation,
+  userController.deleteAction,
+);
 
 /**
  * @api {post} /users Create user
@@ -51,6 +67,6 @@ router.delete('/:id', userController.deleteAction);
  *
  * @apiSuccess (200) {Object<User>}
  */
-router.post('/', validate.userRequestValidation, userController.createAction);
+router.post('/', validate.userCreateRequestValidation, userController.createAction);
 
 export default router;

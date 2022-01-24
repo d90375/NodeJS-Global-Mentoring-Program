@@ -1,9 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
-import { StatusCodes, getReasonPhrase } from 'http-status-codes';
-import { errorHandler } from '../../common/error-handlers';
+import { StatusCodes } from 'http-status-codes';
+import bcrypt from 'bcrypt';
+import { HTTP400Error, HTTP404Error } from '../../common/errors';
+import { validateMiddleware } from '../../middleware';
 import userService from './user.service';
-
-const { validate } = require('../../middleware/request.validator');
+import { UserInput } from './user.types';
 
 const indexAction = async (
   req: Request<{}, {}, {}, { loginSubstring: string; limit: number }>,
@@ -19,75 +20,85 @@ const indexAction = async (
   }
 };
 
-const createAction = async (req: Request, res: Response, next: NextFunction) => {
+const createAction = async (req: Request<{}, {}, UserInput>, res: Response, next: NextFunction) => {
   try {
-    await validate(req);
+    await validateMiddleware(req, res, next);
     const userData = req.body;
 
     const isLoginAvailable = await userService.getByLogin(userData?.login);
     if (isLoginAvailable) {
-      errorHandler(req, res, next, StatusCodes.NOT_ACCEPTABLE, 'Login has found.');
+      throw new HTTP404Error('Login has found.');
     } else {
+      const salt = await bcrypt.genSalt(10);
+      userData.password = await bcrypt.hash(userData.password, salt);
+
       const user = await userService.create({ ...userData, isDeleted: false });
       return res.status(StatusCodes.OK).json(user);
     }
-    return false;
   } catch (err) {
     return next(err);
   }
 };
 
-const updateAction = async (req: Request, res: Response, next: NextFunction) => {
+const updateAction = async (
+  req: Request<{ id: string }, {}, UserInput>,
+  res: Response,
+  next: NextFunction,
+) => {
   try {
-    await validate(req);
+    await validateMiddleware(req, res, next);
     const { id } = req.params;
     const userData = req.body;
 
     if (id) {
       const currUser = await userService.getById(id);
       if (!currUser) {
-        errorHandler(req, res, next, StatusCodes.NOT_FOUND, 'Login not found.');
+        throw new HTTP404Error('Login has found.');
       }
 
-      const isLoginAvailable = await userService.getByLogin(userData?.login);
-      if (isLoginAvailable) {
-        errorHandler(req, res, next, StatusCodes.NOT_ACCEPTABLE, 'Login has found.');
-      } else {
-        const user = await userService.update(id, userData);
-        return res.status(StatusCodes.OK).json(user);
-      }
+      const salt = await bcrypt.genSalt(10);
+      userData.password = await bcrypt.hash(userData.password, salt);
+
+      const user = await userService.update(id, userData);
+      return res.status(StatusCodes.OK).json(user);
     }
 
-    errorHandler(req, res, next, StatusCodes.BAD_GATEWAY, getReasonPhrase(StatusCodes.BAD_GATEWAY));
-    return false;
+    throw new HTTP400Error();
   } catch (err) {
     return next(err);
   }
 };
 
-const deleteAction = async (req: Request, res: Response, next: NextFunction) => {
+const deleteAction = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
     if (id) {
       const currUser = await userService.getById(id);
       if (currUser) {
         await userService.remove(id);
-        return res.status(StatusCodes.NO_CONTENT).send('Login has been deleted.');
+        return res.status(StatusCodes.OK).send('User has been deleted');
       }
-      errorHandler(req, res, next, StatusCodes.NOT_FOUND, 'Login not found.');
+      throw new HTTP404Error('User not found.');
     }
-    errorHandler(req, res, next, StatusCodes.BAD_GATEWAY, getReasonPhrase(StatusCodes.BAD_GATEWAY));
-    return false;
+    throw new HTTP400Error();
   } catch (err) {
     return next(err);
   }
 };
 
-const getByIdAction = async (req: Request, res: Response, next: NextFunction) => {
+const getByIdAction = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
-    const user = await userService.getById(id);
-    return res.status(StatusCodes.OK).json(user);
+    if (id) {
+      const user = await userService.getById(id);
+      if (user) {
+        await userService.remove(id);
+        return res.status(StatusCodes.OK).json(user);
+      }
+
+      throw new HTTP404Error('User not found.');
+    }
+    throw new HTTP400Error();
   } catch (err) {
     return next(err);
   }

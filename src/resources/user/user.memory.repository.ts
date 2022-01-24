@@ -1,11 +1,11 @@
 import { Op } from 'sequelize';
-import { User } from './user.types';
-import UserModel from './user.model';
+import Models from '../base/base.model';
+import { UserInput, UserOutput } from './user.types';
 
-const updatedFields = (obj: any) =>
-  Object.keys(obj).filter((field) => !['password'].includes(field));
-
-const getAutoSuggestUsers = async (loginSubstring: string, limit: number): Promise<User[]> => {
+const getAutoSuggestUsers = async (
+  loginSubstring: string,
+  limit: number,
+): Promise<UserOutput[]> => {
   let whereOption;
 
   if (loginSubstring) {
@@ -13,7 +13,18 @@ const getAutoSuggestUsers = async (loginSubstring: string, limit: number): Promi
       login: { [Op.iLike]: `${loginSubstring}%` },
     };
   }
-  const sortedUsers = await UserModel.findAll({
+  const sortedUsers = await Models.UserModel.findAll({
+    attributes: {
+      exclude: ['createdAt', 'updatedAt'],
+    },
+    include: {
+      model: Models.GroupModel,
+      as: 'groups',
+      attributes: ['id', 'name', 'permissions'],
+      through: {
+        attributes: [],
+      },
+    },
     order: ['login'],
     where: whereOption,
     limit,
@@ -22,30 +33,49 @@ const getAutoSuggestUsers = async (loginSubstring: string, limit: number): Promi
   return sortedUsers;
 };
 
-const create = async (user: User) => UserModel.create(user);
+const create = async (user: UserInput) => Models.UserModel.create(user);
 
-const update = async (id: string, user: User): Promise<User | null> => {
-  const updatedUser = await UserModel.update(user, {
-    where: { id },
-    returning: true,
-    fields: updatedFields(UserModel.rawAttributes),
-  }).then(() => UserModel.findOne({ where: { id } }));
-
-  return updatedUser;
-};
-
-const getById = async (id: string): Promise<User | null> =>
-  UserModel.findOne({
-    where: {
-      id,
+const update = async (id: string, user: UserInput): Promise<UserOutput | null | undefined> => {
+  const currentUser = await Models.UserModel.findByPk(id, {
+    attributes: {
+      exclude: ['createdAt', 'updatedAt'],
+    },
+    include: {
+      model: Models.GroupModel,
+      as: 'groups',
+      attributes: ['id', 'name', 'permissions'],
+      through: {
+        attributes: [],
+      },
     },
   });
 
-const getByLogin = async (login: string): Promise<User | null> =>
-  UserModel.findOne({ where: { login } });
+  return currentUser?.update(user);
+};
+
+const getById = async (id: string): Promise<UserOutput | null> =>
+  Models.UserModel.findByPk(id, {
+    attributes: {
+      exclude: ['createdAt', 'updatedAt'],
+    },
+    include: {
+      model: Models.GroupModel,
+      as: 'groups',
+      attributes: ['id', 'name', 'permissions'],
+      through: {
+        attributes: [],
+      },
+    },
+  });
+
+const getByLogin = async (login: string): Promise<UserOutput | null> =>
+  Models.UserModel.findOne({ where: { login } });
+
+const getByLoginWithPassword = async (login: string): Promise<UserOutput | null> =>
+  Models.UserModel.scope('withPassword').findOne({ where: { login } });
 
 const remove = async (id: string): Promise<void> => {
-  UserModel.destroy({ where: { id } });
+  Models.UserModel.destroy({ where: { id } });
 };
 
 const userRepository = {
@@ -54,6 +84,7 @@ const userRepository = {
   getById,
   remove,
   getAutoSuggestUsers,
+  getByLoginWithPassword,
   getByLogin,
 };
 

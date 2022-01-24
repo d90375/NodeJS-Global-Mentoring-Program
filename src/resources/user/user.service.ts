@@ -1,18 +1,21 @@
-import { User } from './user.types';
 import userRepository from './user.memory.repository';
+import { UserInput } from './user.types';
 
-const getAll = (loginSubstring: string, limit: number) =>
+const getAll = async (loginSubstring: string, limit: number) =>
   userRepository.getAutoSuggestUsers(loginSubstring, limit);
 
-const create = (userData: User) => userRepository.create(userData);
+const create = async (userData: UserInput) => userRepository.create(userData);
 
-const update = (id: string, userData: User) => userRepository.update(id, userData);
+const update = async (id: string, userData: UserInput) => userRepository.update(id, userData);
 
-const getById = (id: string) => userRepository.getById(id);
+const getById = async (id: string) => userRepository.getById(id);
 
-const getByLogin = (login: string) => userRepository.getByLogin(login);
+const getByLogin = async (login: string) => userRepository.getByLogin(login);
 
-const remove = (id: string) => userRepository.remove(id);
+const getByLoginWithPassword = async (login: string) =>
+  userRepository.getByLoginWithPassword(login);
+
+const remove = async (id: string) => userRepository.remove(id);
 
 const userService = {
   getAll,
@@ -21,6 +24,7 @@ const userService = {
   getById,
   remove,
   getByLogin,
+  getByLoginWithPassword,
 };
 
 export default userService;

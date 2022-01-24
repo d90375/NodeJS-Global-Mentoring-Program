@@ -1,7 +1,11 @@
 import { Sequelize } from 'sequelize';
-import CONFIG from '../../common/config';
+import { CONFIG } from '../../common/config';
+import logger from '../../common/logger.config';
 
-const db = new Sequelize({
+import createGroupModel from '../group/group.model';
+import createUserModel from '../user/user.model';
+
+export const db = new Sequelize({
   database: CONFIG.DATABASE_NAME,
   username: CONFIG.DATABASE_USERNAME,
   password: CONFIG.DATABASE_PASSWORD,
@@ -14,6 +18,28 @@ const db = new Sequelize({
       rejectUnauthorized: false, // This line will fix new error
     },
   },
+  logging: (msg) => logger.debug(msg),
 });
 
-export default db;
+const Models = {
+  UserModel: createUserModel(db),
+  GroupModel: createGroupModel(db),
+};
+
+Models.GroupModel.belongsToMany(Models.UserModel, {
+  through: 'UserGroup',
+  as: 'users',
+  foreignKey: 'groupId',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+
+Models.UserModel.belongsToMany(Models.GroupModel, {
+  through: 'UserGroup',
+  as: 'groups',
+  foreignKey: 'userId',
+  onDelete: 'CASCADE',
+  onUpdate: 'CASCADE',
+});
+
+export default Models;
