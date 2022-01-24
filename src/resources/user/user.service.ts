@@ -12,6 +12,9 @@ const getById = async (id: string) => userRepository.getById(id);
 
 const getByLogin = async (login: string) => userRepository.getByLogin(login);
 
+const getByLoginWithPassword = async (login: string) =>
+  userRepository.getByLoginWithPassword(login);
+
 const remove = async (id: string) => userRepository.remove(id);
 
 const userService = {
@@ -21,6 +24,7 @@ const userService = {
   getById,
   remove,
   getByLogin,
+  getByLoginWithPassword,
 };
 
 export default userService;

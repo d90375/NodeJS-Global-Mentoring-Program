@@ -1,5 +1,5 @@
 import { Sequelize } from 'sequelize';
-import CONFIG from '../../common/config';
+import { CONFIG } from '../../common/config';
 import logger from '../../common/logger.config';
 
 import createGroupModel from '../group/group.model';

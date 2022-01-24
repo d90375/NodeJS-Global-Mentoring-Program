@@ -1,4 +1,4 @@
-import CONFIG from './common/config';
+import { CONFIG } from './common/config';
 import app from './app';
 import { fillGreen, fillRed } from './common/chulk';
 import { db } from './resources/base/base.model';

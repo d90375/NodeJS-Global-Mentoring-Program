@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
+import bcrypt from 'bcrypt';
 import { HTTP400Error, HTTP404Error } from '../../common/errors';
 import { validateMiddleware } from '../../middleware';
 import userService from './user.service';
@@ -28,6 +29,9 @@ const createAction = async (req: Request<{}, {}, UserInput>, res: Response, next
     if (isLoginAvailable) {
       throw new HTTP404Error('Login has found.');
     } else {
+      const salt = await bcrypt.genSalt(10);
+      userData.password = await bcrypt.hash(userData.password, salt);
+
       const user = await userService.create({ ...userData, isDeleted: false });
       return res.status(StatusCodes.OK).json(user);
     }
@@ -51,6 +55,9 @@ const updateAction = async (
       if (!currUser) {
         throw new HTTP404Error('Login has found.');
       }
+
+      const salt = await bcrypt.genSalt(10);
+      userData.password = await bcrypt.hash(userData.password, salt);
 
       const user = await userService.update(id, userData);
       return res.status(StatusCodes.OK).json(user);
