@@ -157,7 +157,6 @@ describe('GroupController', () => {
 
     it('Should add users to group', async () => {
       userRepository.getById.mockResolvedValue(mockGroup.id);
-      console.log('userRepository', userRepository.getById());
       groupRepository.addUsersToGroup.mockResolvedValue(userIds);
       await groupController.addUsersToGroupAction(mockRequest, mockResponse, mockNext);
 
