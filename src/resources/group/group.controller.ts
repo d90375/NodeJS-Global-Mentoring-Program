@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import { HTTP400Error, HTTP404Error } from '../../common/errors';
 import { validateMiddleware } from '../../middleware';
-import userService from './group.service';
+import userService from '../user/user.service';
 import groupService from './group.service';
 import { GroupInput } from './group.types';
 
@@ -68,8 +68,10 @@ const updateAction = async (
 const deleteAction = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+
     if (id) {
       const currGroup = await groupService.getById(id);
+
       if (currGroup) {
         await groupService.remove(id);
         return res.status(StatusCodes.OK).send('Group has been deleted');
@@ -110,7 +112,7 @@ const addUsersToGroupAction = async (
     const { userIds } = req.body;
 
     const currentUsers: any = await Promise.all(
-      userIds?.map(async (userId) => userService.getById(userId)),
+      userIds?.map(async (userId) => await userService.getById(userId)),
     )
       .then((data) => data)
       .catch(() => {});
