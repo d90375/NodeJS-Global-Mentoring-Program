@@ -12,7 +12,10 @@ const indexAction = async (
   next: NextFunction,
 ) => {
   try {
+    // @ts-ignore
+    await validateMiddleware(req, res, next);
     const { loginSubstring, limit } = req.query;
+
     const users = await userService.getAll(loginSubstring, limit);
     return res.status(StatusCodes.OK).json(users);
   } catch (err) {
@@ -60,6 +63,7 @@ const updateAction = async (
       userData.password = await bcrypt.hash(userData.password, salt);
 
       const user = await userService.update(id, userData);
+
       return res.status(StatusCodes.OK).json(user);
     }
 
@@ -92,7 +96,6 @@ const getByIdAction = async (req: Request<{ id: string }>, res: Response, next: 
     if (id) {
       const user = await userService.getById(id);
       if (user) {
-        await userService.remove(id);
         return res.status(StatusCodes.OK).json(user);
       }
 

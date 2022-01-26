@@ -98,7 +98,7 @@ const addUsersToGroup = async (groupId: string, userIds: string[]) => {
   return responseGroup;
 };
 
-const userRepository = {
+const groupRepository = {
   getAllGroups,
   createGroup,
   getGroupById,
@@ -108,4 +108,4 @@ const userRepository = {
   getGroupByName,
 };
 
-export default userRepository;
+export default groupRepository;

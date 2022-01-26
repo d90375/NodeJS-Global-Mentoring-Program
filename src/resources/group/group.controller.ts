@@ -68,8 +68,10 @@ const updateAction = async (
 const deleteAction = async (req: Request<{ id: string }>, res: Response, next: NextFunction) => {
   try {
     const { id } = req.params;
+
     if (id) {
       const currGroup = await groupService.getById(id);
+
       if (currGroup) {
         await groupService.remove(id);
         return res.status(StatusCodes.OK).send('Group has been deleted');
@@ -109,15 +111,20 @@ const addUsersToGroupAction = async (
     const { id } = req.params;
     const { userIds } = req.body;
 
-    const currentUsers: any = await Promise.all(
-      userIds?.map(async (userId) => userService.getById(userId)),
-    )
-      .then((data) => data)
-      .catch(() => {});
+    // const currentUsers: any = await Promise.all(
+    //   userIds?.map(async (userId) => ),
+    // )
+    //   .then((data) => data)
+    //   .catch(() => {});
 
-    if (!currentUsers || !currentUsers.every((userId: string) => userId)) {
-      throw new HTTP404Error('One of the users was not found ');
-    }
+    const x = await userService.getById(userIds[0]);
+    console.log('userService', await userService.getById('rewrwe'));
+    console.log('###########', userIds[0]);
+    console.log('!#@##!##', x);
+
+    // if (!currentUsers || !currentUsers.every((userId: string) => userId)) {
+    //   throw new HTTP404Error('One of the users was not found ');
+    // }
 
     const group = await groupService.addUsersToGroup(id, userIds);
 

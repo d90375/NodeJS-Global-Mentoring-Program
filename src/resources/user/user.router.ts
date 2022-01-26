@@ -10,7 +10,7 @@ from api {get} /users Get all users
  *
  * @apiSuccess (200) {Array<User>}
  */
-router.get('/', authMiddleware, userController.indexAction);
+router.get('/', authMiddleware, validate.userGetUserRequestValidation, userController.indexAction);
 
 /**
  * @api {get} /users/:id Get specific user by Id

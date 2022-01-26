@@ -1,4 +1,4 @@
-import { body, param } from 'express-validator';
+import { body, param, query } from 'express-validator';
 
 const validate = {
   userUpdateRequestValidation: [
@@ -31,6 +31,10 @@ const validate = {
   ],
   userGetByIdRequestValidation: [param('id').exists().isUUID()],
   userDeleteByIdRequestValidation: [param('id').exists().isUUID()],
+  userGetUserRequestValidation: [
+    query('loginSubstring').optional().isString().withMessage('Only letter or string'),
+    query('limit').optional().isFloat(),
+  ],
 };
 
 export default validate;
